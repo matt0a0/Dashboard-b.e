@@ -1,0 +1,179 @@
+/* src/components/ConfigPage.css */
+
+.config-page {
+  padding: 0; /* Padding gerenciado pelo .content */
+  background-color: transparent; /* Fundo do .content */
+  color: var(--text-primary);
+  border-radius: 0;
+  /* box-shadow: none; */ /* Sem sombra aqui */
+  width: 100%; /* Ocupa a largura do .content */
+  margin: 0;
+  max-width: none; /* Remove max-width */
+}
+
+/* Remove .config-page.light */
+
+.config-page h2 {
+  text-align: left; /* Alinha à esquerda */
+  margin-bottom: 20px;
+  font-size: 20px; /* Tamanho consistente com HistoricalPage */
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.config-section {
+  margin-bottom: 25px;
+  padding: 20px; /* Adiciona padding interno à seção */
+  background-color: var(--bg-panel); /* Fundo de painel para cada seção */
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.config-section label:not(.switch) { /* Aplica a labels, exceto a do switch */
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px; /* Fonte menor para labels */
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Estilo para o slider */
+.config-slider {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color); /* Cor de fundo da barra */
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: 5px;
+  margin-bottom: 10px; /* Espaço abaixo */
+}
+
+.config-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent-secondary); /* Cor do controle deslizante */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.config-slider::-webkit-slider-thumb:hover {
+  background: #2980b9; /* Cor mais escura no hover */
+}
+
+.config-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--accent-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+.config-slider::-moz-range-thumb:hover {
+  background: #2980b9;
+}
+
+/* Exibe o valor ao lado do slider */
+.config-section span:not(.slider) {
+  display: inline-block;
+  margin-left: 15px;
+  font-size: 14px;
+  color: var(--text-primary);
+  vertical-align: middle; /* Alinha com o slider */
+}
+
+
+/* Estilo para Input Numérico e Select */
+.config-input,
+.config-select {
+  padding: 10px 12px;
+  font-size: 14px; /* Tamanho consistente */
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-dark); /* Fundo um pouco mais escuro */
+  color: var(--text-primary);
+  margin-top: 5px;
+  box-sizing: border-box;
+  max-width: 150px; /* Define uma largura máxima */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.config-input:focus,
+.config-select:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3); /* Sombra de foco */
+}
+
+/* Container para label e controle lado a lado (Switch, Select) */
+.config-control-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Coloca label de um lado, controle do outro */
+    margin-top: 5px;
+}
+
+/* Estilo para o Switch (liga/desliga) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px; /* Largura menor */
+  height: 28px; /* Altura menor */
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-color); /* Cor desligado */
+  transition: 0.4s;
+  border-radius: 28px; /* Totalmente arredondado */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px; /* Tamanho menor do círculo */
+  width: 20px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--text-secondary); /* Cor do círculo desligado */
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: var(--accent-primary); /* Cor ligado (verde) */
+}
+
+input:checked + .slider:before {
+  background-color: white; /* Círculo branco quando ligado */
+  transform: translateX(22px); /* Distância de movimento menor */
+}
+
+/* Ajuste no layout da seção do Switch */
+.config-section label[for="navigation-toggle"] {
+    margin-bottom: 0; /* Remove margem inferior da label */
+}
+
+/* Ajuste no layout da seção do Select */
+.config-section label[for="theme-select"] {
+    margin-bottom: 0;
+}

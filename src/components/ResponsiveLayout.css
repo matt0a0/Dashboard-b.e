@@ -1,0 +1,87 @@
+/* src/components/ResponsiveLayout.css */
+
+/* Container Responsivo Principal */
+.responsive-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* Estilo do Cabeçalho */
+  .header {
+    background-color: #00f6ff;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+  
+  /* Layout Principal - Flexbox */
+  .main-content {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    padding: 20px;
+  }
+  
+  /* Menu Lateral */
+  .sidebar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    width: 250px;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Conteúdo Principal */
+  .content {
+    flex: 1;
+    padding: 20px;
+    background-color: #ecf0f1;
+  }
+  
+  /* Rodapé */
+  .footer {
+    background-color: #34495e;
+    color: white;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  /* Media Queries para ajustar o layout em telas menores */
+  
+  /* Para telas menores que 768px (como tablets e smartphones) */
+  @media (max-width: 768px) {
+    .main-content {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+      margin-right: 0;
+      padding: 10px;
+    }
+  
+    .content {
+      padding: 10px;
+    }
+  }
+  
+  /* Para telas menores que 480px (como smartphones) */
+  @media (max-width: 480px) {
+    .header {
+      font-size: 1.2rem;
+    }
+  
+    .sidebar {
+      width: 100%;
+      padding: 5px;
+    }
+  
+    .footer {
+      font-size: 0.9rem;
+    }
+  }
+  

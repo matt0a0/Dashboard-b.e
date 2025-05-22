@@ -1,0 +1,110 @@
+/* src/components/HistoricalPage.css */
+
+.historical-page {
+  padding: 0; /* Padding gerenciado pelo container .content */
+  background-color: transparent; /* Fundo vem do .content */
+  color: var(--text-primary);
+  border-radius: 0; /* Sem borda arredondada aqui */
+  margin-top: 0; /* Sem margem extra */
+}
+
+.historical-page h2 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.historical-list {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Espaço entre itens do histórico */
+}
+
+.historical-item {
+  background-color: var(--bg-panel); /* Fundo do painel para cada item */
+  padding: 15px;
+  margin-bottom: 0; /* Removido, usando gap */
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.historical-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding-bottom: 10px; /* Espaço antes da linha se expandido */
+}
+
+.historical-item-header span {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Botão Expandir/Esconder */
+.historical-item-header button {
+  background-color: var(--accent-secondary); /* Azul para ação secundária */
+  color: #fff; /* Texto branco para contraste */
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.historical-item-header button:hover {
+  background-color: #2980b9; /* Azul um pouco mais escuro no hover */
+}
+
+.historical-item-expanded {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color); /* Linha separadora */
+}
+
+.historical-item-expanded p {
+  color: var(--text-secondary);
+  margin-bottom: 15px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mini-map-container {
+  display: flex;
+  flex-direction: column; /* Empilha info e mapa */
+  /* justify-content: flex-start; */
+  /* align-items: center; */
+  margin-top: 10px;
+  gap: 15px; /* Espaçamento entre informações e mapa */
+}
+
+/* Estilo para a seção de informações ao lado/acima do minimapa */
+.mini-map-container > div:first-child { /* Seleciona o div de informações */
+  flex: none; /* Não estica */
+  padding-right: 0;
+}
+
+.mini-map-container h4 {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Container do minimapa em si (o div com id="mini-map-...") */
+.mini-map-container > div[id^="mini-map-"] {
+  width: 100%; /* Ocupa toda a largura disponível */
+  height: 300px; /* Altura fixa para o minimapa */
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden; /* Garante que o mapa fique contido */
+}
+
+/* Remove estilo global de button se necessário, pois já estilizamos o específico */
+/* button { ... } */

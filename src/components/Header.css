@@ -1,0 +1,35 @@
+/* src/components/Header.css */
+
+.header {
+    grid-area: header; /* Posicionamento via Grid definido em App.css */
+    width: 100%;
+    height: 60px; /* Altura definida no Grid em App.css */
+    background-color: var(--bg-panel); /* Cor de fundo do painel */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px; /* Aumenta um pouco o padding lateral */
+    /* z-index: 1000; */ /* Menos relevante com Grid */
+    border-bottom: 1px solid var(--border-color); /* Borda inferior sutil */
+    box-sizing: border-box;
+  }
+  
+  .header-left,
+  .header-right {
+    color: var(--text-secondary); /* Cor secundária para data/hora */
+    font-size: 14px; /* Tamanho menor */
+    /* text-shadow: none; */ /* Remove sombra */
+  }
+  
+  .header-center {
+    color: var(--text-primary); /* Cor primária para o título */
+    font-size: 18px; /* Tamanho um pouco menor */
+    font-weight: 600; /* Peso semi-bold */
+    /* text-shadow: none; */ /* Remove sombra */
+  }
+  
+  /* Ajustes para ícones ou outros elementos se houver */
+  .header i { /* Exemplo se usar ícones */
+    color: var(--text-secondary);
+    margin: 0 5px;
+  }
