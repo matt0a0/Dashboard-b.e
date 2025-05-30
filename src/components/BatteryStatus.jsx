@@ -1,85 +1,147 @@
-// src/components/BatteryStatus.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import './BatteryStatus.css'; // Criaremos este arquivo para estilização
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  TimeScale // Adicionado para potencial uso de eixos de tempo
+} from 'chart.js';
+// Se for usar adaptadores de data (opcional, mas bom para eixos de tempo reais)
+// import 'chartjs-adapter-date-fns';
+// import { ptBR } from 'date-fns/locale';
 
-// Registrar os componentes necessários do Chart.js
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const BatteryStatus = ({ percentage, historyData }) => {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  TimeScale
+);
 
-  // Configuração do gráfico de linha do histórico
-  const chartData = {
-    // Usar rótulos vazios ou índices para o eixo X (simulando tempo)
-    labels: historyData.map((_, index) => index), // Simplesmente numerando os pontos
-    datasets: [
-      {
-        label: 'Nível da Bateria (%)', // Ou 'Taxa de Carga/Descarga'
-        data: historyData, // Os dados do histórico passados via prop
-        borderColor: percentage > 20 ? 'rgba(52, 152, 219, 1)' : 'rgba(231, 76, 60, 1)', // Azul normal, Vermelho se baixo
-        backgroundColor: percentage > 20 ? 'rgba(52, 152, 219, 0.2)' : 'rgba(231, 76, 60, 0.2)', // Área preenchida com transparência
-        borderWidth: 2,
-        fill: true, // Preenche a área abaixo da linha
-        tension: 0.4, // Deixa a linha mais suave
-        pointRadius: 0, // Esconde os pontos individuais na linha
-      },
-    ],
-  };
+const BatteryStatus = ({ percentage, historyData, latestTimestamp }) => {
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+
+  // Para depuração: verifique as props recebidas
+  // console.log('BatteryStatus props:', { percentage, historyData, latestTimestamp });
+
+  useEffect(() => {
+    // Verifica se historyData é um array antes de usá-lo
+    if (Array.isArray(historyData)) {
+      if (historyData.length > 0) {
+        setChartData({
+          // Se você tiver timestamps, use-os. Caso contrário, índices.
+          labels: historyData.map((_, index) => index + 1), // Exemplo: Rótulos como 1, 2, 3...
+          // Se tiver timestamps: historyData.map(entry => entry.timestamp)
+          datasets: [
+            {
+              label: 'Histórico de Voltagem (V)',
+              data: historyData, // historyData deve ser um array de números (voltagens)
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.1,
+              fill: true,
+            },
+          ],
+        });
+      } else {
+        // historyData é um array vazio
+        setChartData({
+          labels: [],
+          datasets: [{ label: 'Histórico de Voltagem (V)', data: [], borderColor: 'rgb(75, 192, 192)' }],
+        });
+      }
+    } else {
+      // historyData é undefined ou não é um array
+      // console.warn('BatteryStatus: historyData está indefinido ou não é um array.', historyData);
+      // Define um estado padrão vazio para o gráfico
+      setChartData({
+          labels: [],
+          datasets: [{ label: 'Histórico de Voltagem (V)', data: [], borderColor: 'rgb(75, 192, 192)' }],
+      });
+    }
+  }, [historyData]); // Re-executa o efeito quando historyData mudar
 
   const chartOptions = {
+    maintainAspectRatio: false,
     responsive: true,
-    maintainAspectRatio: false, // Permite controlar altura independentemente da largura
     scales: {
-      y: { // Configurações do eixo Y (Porcentagem)
-        beginAtZero: true, // Começa em 0%
-        max: 100, // Vai até 100%
-        ticks: {
-          color: 'var(--text-secondary)', // Cor dos números do eixo
+      y: {
+        beginAtZero: false, // Pode ser true se a voltagem nunca for negativa
+        title: {
+          display: true,
+          text: 'Voltagem (V)',
+          color: 'var(--text-secondary)'
         },
-        grid: {
-            color: 'rgba(255, 255, 255, 0.1)', // Cor das linhas de grade
-        }
+        ticks: { color: 'var(--text-secondary)' },
+        grid: { color: 'var(--border-color)' }
       },
-      x: { // Configurações do eixo X (Tempo simulado)
-        ticks: {
-          display: false, // Esconde os rótulos do eixo X (índices)
+      x: {
+        title: {
+          display: true,
+          text: 'Leituras Anteriores', // Ajuste se tiver timestamps
+          color: 'var(--text-secondary)'
         },
-        grid: {
-          display: false, // Esconde as linhas de grade verticais
-        }
+        ticks: { color: 'var(--text-secondary)' },
+        grid: { color: 'var(--border-color)' }
+        // Se usar timestamps:
+        // type: 'time',
+        // time: {
+        //   unit: 'minute', // ou 'second', 'hour', etc.
+        //   tooltipFormat: 'PPpp', // Formato do tooltip
+        //   displayFormats: {
+        //     minute: 'HH:mm'
+        //   }
+        // },
+        // adapters: {
+        //   date: {
+        //     locale: ptBR, // Se usar date-fns e quiser localização
+        //   },
+        // },
       }
     },
     plugins: {
       legend: {
-        display: false, // Esconde a legenda ("Nível da Bateria (%)")
+        display: true,
+        labels: {
+          color: 'var(--text-primary)'
+        }
+      },
+      title: {
+        display: true,
+        text: `Status da Bateria: ${percentage !== undefined && percentage !== null ? percentage.toFixed(2) : 'N/A'} V`,
+        color: 'var(--text-primary)',
+        font: { size: 16 }
       },
       tooltip: {
-        enabled: false, // Desativa tooltips ao passar o mouse
+        backgroundColor: 'var(--bg-dark)',
+        titleColor: 'var(--text-primary)',
+        bodyColor: 'var(--text-primary)',
+        borderColor: 'var(--border-color)',
+        borderWidth: 1
       }
-    }
-  };
-
-  // Determina o ícone da bateria baseado na porcentagem
-  const getBatteryIcon = () => {
-    if (percentage > 90) return 'fa-battery-full';
-    if (percentage > 70) return 'fa-battery-three-quarters';
-    if (percentage > 40) return 'fa-battery-half';
-    if (percentage > 15) return 'fa-battery-quarter';
-    return 'fa-battery-empty';
+    },
   };
 
   return (
-    <div className="battery-status-container">
-      {/* Lado Esquerdo: Porcentagem e Ícone */}
-      <div className="battery-percentage-section">
-        <i className={`fas ${getBatteryIcon()} battery-icon`}></i>
-        <span className="battery-percentage-text">{percentage}%</span>
-      </div>
-
-      {/* Lado Direito: Gráfico de Histórico */}
-      <div className="battery-history-chart-section">
-        <Line data={chartData} options={chartOptions} />
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '5px' }}>
+      <div style={{ flexGrow: 1, position: 'relative', minHeight: '200px' }}> {/* Garante altura mínima */}
+        {/* Renderiza o gráfico apenas se houver dados ou se historyData for um array vazio (para mostrar um gráfico vazio) */}
+        {(Array.isArray(historyData)) ? (
+          <Line data={chartData} options={chartOptions} />
+        ) : (
+          <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-secondary)'}}>
+            Dados do histórico de bateria indisponíveis.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,48 +1,48 @@
-// src/components/DashboardOverview.jsx
-import React, { useState } from "react";
-import ChartComponent from "./ChartComponent";
+import React from 'react';
 
-const DashboardOverview = () => {
-  // Aqui você pode trazer os dados reais, por enquanto vou simular:
-  const batteryData = [
-    { time: "08:00", battery: 90 },
-    { time: "08:05", battery: 88 },
-    { time: "08:10", battery: 87 },
-  ];
+// Importe os componentes de gráfico que o DashboardOverview vai usar
+import BatteryStatus from './BatteryStatus';
+// import OutroGrafico from './OutroGrafico'; // Exemplo
 
-  const speedData = [
-    { time: "08:00", speed: 10 },
-    { time: "08:05", speed: 12 },
-    { time: "08:10", speed: 15 },
-  ];
+// Importe o CSS específico para este componente, se houver
+// import './DashboardOverview.css'; 
 
-  // Estado para controlar qual indicador está selecionado (opcional)
-  const [selectedIndicator, setSelectedIndicator] = useState("battery");
+// DashboardOverview agora recebe props
+const DashboardOverview = ({ history, latestData }) => {
+  
+  // Prepara os dados para BatteryStatus
+  // Verifica se latestData e latestData.Volt existem antes de tentar aceder
+  const batteryPercentage = latestData && latestData.Volt !== undefined ? latestData.Volt : null;
+  
+  // Garante que batteryHistoryData seja um array, mesmo que history seja null/undefined no início.
+  // E também verifica se cada item 'h' em history existe antes de aceder 'h.Volt'.
+  const batteryHistoryData = Array.isArray(history) 
+    ? history.map(h => (h && h.Volt !== undefined ? h.Volt : 0)) 
+    : [];
 
-  // Função que retorna dados e título conforme indicador selecionado
-  const getChartData = () => {
-    switch (selectedIndicator) {
-      case "battery":
-        return { data: batteryData, title: "Status da Bateria" };
-      case "speed":
-        return { data: speedData, title: "Velocidade do Barco (km/h)" };
-      default:
-        return { data: [], title: "" };
-    }
-  };
-
-  const { data, title } = getChartData();
+  // Para depuração:
+  // console.log('DashboardOverview props:', { history, latestData });
+  // console.log('Dados para BatteryStatus:', { batteryPercentage, batteryHistoryData });
 
   return (
-    <div>
-      <h2>Dashboard Overview</h2>
+    // Adicione uma classe container se necessário para estilização
+    <div className="dashboard-overview-container p-4"> 
+      <h2 className="text-2xl font-semibold mb-4 text-[var(--text-primary)]">Visão Geral / Configuração</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div className="grid-item item-bateria p-3 bg-[var(--bg-panel)] rounded-lg shadow">
+       
+          <BatteryStatus
+            percentage={batteryPercentage}
+            historyData={batteryHistoryData}
+            // latestTimestamp={latestData ? latestData.timestamp : null} // Se tiver timestamp
+          />
+        </div>
+        <div className="p-3 bg-[var(--bg-panel)] rounded-lg shadow text-[var(--text-secondary)]">
+          Mais conteúdo de configuração ou visão geral pode ser adicionado aqui.
+        </div>
 
-      <div style={{ marginBottom: 20 }}>
-        <button onClick={() => setSelectedIndicator("battery")}>Bateria</button>
-        <button onClick={() => setSelectedIndicator("speed")}>Velocidade</button>
       </div>
-
-      <ChartComponent data={data} title={title} />
     </div>
   );
 };
