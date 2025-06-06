@@ -1,97 +1,127 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 
+// Importe todos os componentes de gráfico individuais que você quer mostrar
 import BatteryStatus from './BatteryStatus';
-import SpeedChart from './SpeedChart';
 import MotorTempChart from './MotorTempChart';
-import ControlTempChart from './ControlTempChart';
-import WavesChart from './WavesChart';
+import SpeedChart from './SpeedChart';
 import WindSpeedChart from './WindSpeedChart';
+import WavesChart from './WavesChart';
+import ControlTempChart from './ControlTempChart';
 import Compass from './Compass';
 
-// Caso não tenha esses componentes, crie mocks rápidos para teste:
-const MockChart = ({ title, data }) => (
-  <div style={{ border: '1px solid #ccc', padding: 10, margin: 5, flex: 1 }}>
-    <h4>{title}</h4>
-    <pre>{JSON.stringify(data, null, 2)}</pre>
-  </div>
-);
+// Opcional, se algum dos seus componentes específicos o utilizar internamente
+// import ChartComponent from './ChartComponent';
 
-export default function AllCharts() {
-  const [history, setHistory] = useState([]); // armazena histórico completo dos dados recebidos
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const AllCharts = ({ history, latestData, loading }) => {
+  // Define quantos pontos do histórico recente mostrar nos mini-gráficos
+  // Isto ajuda a dar a sensação de "janela deslizante" dos dados.
+  const PONTOS_HISTORICO_MINI = 10; // Ex: mostrar os últimos 10 pontos
 
-  // Busca dados a cada 5 segundos
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/dados');
-        if (res.data && res.data.length > 0) {
-          setHistory(prev => {
-            const newEntry = res.data[res.data.length - 1];
-            const maxHistorySize = 100; // limite do histórico para não crescer demais
-            const updated = [...prev, newEntry].slice(-maxHistorySize);
-            return updated;
-          });
-          setError(null);
-        } else {
-          setError('Nenhum dado recebido do servidor');
-        }
-      } catch (err) {
-        setError('Erro ao buscar dados: ' + err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Se estiver a carregar os dados iniciais (sem histórico ainda), mostra placeholders para a grelha.
+  if (loading && (!history || history.length === 0)) {
+    return (
+      <div className="all-charts-container">
+        {Array.from({ length: 8 }).map((_, index) => ( // 8 é o número de gráficos em chartsToDisplay
+          <div key={index} className="chart-item">
+            <div className="content-placeholder" style={{width: '100%', height: '100%'}}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '32px', height: '32px', opacity: '0.5', marginBottom: '8px'}}><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6zm-1-4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM7 10c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm7.5-3.5C15.33 6.5 16 7.17 16 8s-.67 1.5-1.5 1.5S13 8.83 13 8s.67-1.5 1.5-1.5zM3 14c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z" /></svg>
+              <span>Carregando...</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
-    fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  // Se não estiver carregando, mas ainda não houver `latestData` (ex: primeira resposta vazia do backend).
+  if (!latestData) {
+    return <div className="content-placeholder" style={{width: '100%', height: '100%'}}>Aguardando dados do servidor...</div>;
+  }
 
-  if (loading) return <div>Carregando dados...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
-  if (history.length === 0) return <div>Nenhum dado disponível</div>;
+  // Prepara a fatia do histórico para os mini-gráficos.
+  // .slice() cria um novo array, e .map() em seguida também cria novos arrays.
+  // Passar novas referências de array para as props dos componentes filhos
+  // é crucial para que o React e o Chart.js detetem as mudanças e iniciem as animações.
+  const miniSlicedHistory = history.slice(-PONTOS_HISTORICO_MINI);
 
-  // Para passar para os gráficos, você pode extrair arrays dos campos do histórico:
-  const batteryHistory = history.map(h => h.Volt ?? 0);
-  const speedHistory = history.map(h => h.Speed_KPH ?? 0);
-  const motorSpeedHistory = history.map(h => h.Motor_Speed_RPM ?? 0);
-  const motorTempHistory = history.map(h => h.Motor_Temp_C ?? 0);
-  const controlTempHistory = history.map(h => h.Ctrl_Temp_C ?? 0);
-  const windSpeedHistory = history.map(h => h.Current ?? 0);
-  const climateHistory = history.map(h => h.Climate_Temp ?? 0);
+  const chartsToDisplay = [
+    {
+      id: 'battery',
+      component: <BatteryStatus 
+                    percentage={latestData.Volt ?? null} 
+                    historyData={miniSlicedHistory.map(h => (h && h.Volt !== undefined ? h.Volt : 0))}
+                    // A prop 'loading' para o filho reflete o estado de carregamento global.
+                    // Se 'latestData' existe, o filho não está "carregando" no sentido de não ter dados,
+                    // mas pode estar se o 'loading' global ainda estiver ativo (ex: primeira carga).
+                    loading={loading} 
+                 />
+    },
+    {
+      id: 'motorTemp',
+      component: <MotorTempChart
+                    currentTemp={latestData.Motor_Temp_C ?? null}
+                    historyData={miniSlicedHistory.map(h => (h && h.Motor_Temp_C !== undefined ? h.Motor_Temp_C : 0))}
+                    loading={loading}
+                 />
+    },
+    {
+      id: 'boatSpeed',
+      component: <SpeedChart
+                    currentValue={latestData.Speed_KPH ?? null}
+                    historyData={miniSlicedHistory.map(h => (h && h.Speed_KPH !== undefined ? h.Speed_KPH : 0))}
+                    title="Velocidade do Barco (KPH)"
+                    loading={loading}
+                 />
+    },
+    {
+      id: 'motorSpeed',
+       component: <SpeedChart 
+                    currentValue={latestData.Motor_Speed_RPM ?? null} 
+                    historyData={miniSlicedHistory.map(h => (h && h.Motor_Speed_RPM !== undefined ? h.Motor_Speed_RPM : 0))}
+                    title="Velocidade do Motor (RPM)" 
+                    loading={loading}
+                 />
+    },
+    {
+      id: 'controlTemp',
+      component: <ControlTempChart
+                    currentTemp={latestData.Ctrl_Temp_C ?? null}
+                    historyData={miniSlicedHistory.map(h => (h && h.Ctrl_Temp_C !== undefined ? h.Ctrl_Temp_C : 0))}
+                    loading={loading}
+                 />
+    },
+    {
+      id: 'waves',
+      component: <WavesChart
+                    currentValue={latestData.Current ?? null}
+                    historyData={miniSlicedHistory.map(h => (h && h.Current !== undefined ? h.Current : 0))}
+                    loading={loading}
+                 />
+    },
+    {
+      id: 'windSpeed',
+      component: <WindSpeedChart
+                    currentValue={latestData.Wind_Speed_KNOTS ?? latestData.Current ?? null}
+                    historyData={miniSlicedHistory.map(h => (h && (h.Wind_Speed_KNOTS ?? h.Current)) ?? 0)}
+                    loading={loading}
+                 />
+    },
+    {
+        id: 'compass',
+        // Compass geralmente mostra apenas o valor atual, então a animação de "histórico" não se aplica da mesma forma.
+        // Pode ter suas próprias animações internas se o valor 'heading' mudar.
+        component: <Compass heading={latestData.Heading ?? 0} />
+    }
+  ];
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-      <div style={{ flex: '1 1 300px' }}>
-        <BatteryStatus percentage={batteryHistory[batteryHistory.length -1]} historyData={batteryHistory} />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <SpeedChart data={speedHistory} />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <SpeedChart data={motorSpeedHistory} title="Velocidade do Motor" />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <MotorTempChart data={motorTempHistory} />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <ControlTempChart data={controlTempHistory} />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <WavesChart data={windSpeedHistory} />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <WindSpeedChart data={windSpeedHistory} />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <Compass />
-      </div>
-      <div style={{ flex: '1 1 300px' }}>
-        <MockChart title="Clima (°C)" data={climateHistory} />
-      </div>
+    <div className="all-charts-container">
+      {chartsToDisplay.map(chart => (
+        <div key={chart.id} className="chart-item">
+        </div>
+      ))}
     </div>
   );
-}
+};
+
+export default AllCharts;

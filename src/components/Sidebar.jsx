@@ -1,17 +1,28 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import UserMenu from './UserMenu';
+import UserMenu from './UserMenu'; // Certifique-se que este componente existe
 
 const Sidebar = ({ selectedChart, onChartSelect }) => {
   const location = useLocation();
-
-  // Esconder a sidebar de gráficos se não estiver na página principal
   const isHomePage = location.pathname === '/';
 
+  // Defina os botões de gráfico aqui para facilitar a manutenção
+  const chartButtons = [
+    { id: 'all', label: 'Todos os Gráficos' },
+    { id: 'battery', label: 'Status da Bateria' },
+    { id: 'speed', label: 'Velocidade do Barco' },
+    { id: 'motorSpeed', label: 'Velocidade do Motor' },
+    { id: 'motorTemp', label: 'Temperatura do Motor' },
+    { id: 'controlTemp', label: 'Temperatura do Controle' },
+    { id: 'windSpeed', label: 'Velocidade do Vento' }, // Supondo que você tenha este
+    { id: 'waves', label: 'Corrente/Ondas' }, // Supondo que você tenha este
+    { id: 'navigation', label: 'Navegação (Bússola)' },
+  ];
+
   return (
-    <div className="menu-container">
+    <div className="menu-container"> {/* Use a classe do seu App.css */}
       {!isHomePage && (
-        <Link to="/" className="menu" style={{ marginBottom: '10px' }}>
+        <Link to="/" className="menu menu-button-base" style={{ marginBottom: '10px' }}>
           Voltar ao Início
         </Link>
       )}
@@ -20,27 +31,22 @@ const Sidebar = ({ selectedChart, onChartSelect }) => {
 
       {isHomePage && (
         <>
-          <button className={`menu ${selectedChart === 'all' ? 'active' : ''}`} onClick={() => onChartSelect('all')}>
-            Todos os Gráficos
-          </button>
-          <button className={`menu ${selectedChart === 'battery' ? 'active' : ''}`} onClick={() => onChartSelect('battery')}>
-            Status da Bateria
-          </button>
-          <button className={`menu ${selectedChart === 'speed' ? 'active' : ''}`} onClick={() => onChartSelect('speed')}>
-            Velocidade do Barco
-          </button>
-          <button className={`menu ${selectedChart === 'motorSpeed' ? 'active' : ''}`} onClick={() => onChartSelect('motorSpeed')}>
-            Velocidade do Motor
-          </button>
-          {/* Adicione os outros botões aqui, seguindo o mesmo padrão */}
-          <button className={`menu ${selectedChart === 'motorTemp' ? 'active' : ''}`} onClick={() => onChartSelect('motorTemp')}>
-            Temperatura do Motor
-          </button>
-          <button className={`menu ${selectedChart === 'navigation' ? 'active' : ''}`} onClick={() => onChartSelect('navigation')}>
-            Navegação
-          </button>
+          {chartButtons.map(button => (
+            <button 
+              key={button.id}
+              // Use a classe base e adicione 'active' condicionalmente
+              className={`menu menu-button-base ${selectedChart === button.id ? 'active' : ''}`} 
+              onClick={() => onChartSelect(button.id)}
+            >
+              {button.label}
+            </button>
+          ))}
         </>
       )}
+       {/* Links para outras páginas podem vir aqui se não estiverem no Header */}
+       <hr style={{borderColor: 'var(--border-color)', margin: '10px 0'}}/>
+       <Link to="/historico" className="menu menu-button-base">Histórico</Link>
+       <Link to="/configuracao" className="menu menu-button-base">Configuração</Link>
     </div>
   );
 };

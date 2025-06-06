@@ -1,103 +1,109 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
 
-// Importe os componentes de layout e PÁGINA
-import Header from './components/Header'; // Certifique-se que este componente existe
-import Sidebar from './components/Sidebar'; // Certifique-se que este componente existe e está correto
-import DashboardPage from './components/DashboardPage'; // Certifique-se que este componente existe
-import HistoricalPage from './components/HistoricalPage'; // Certifique-se que este componente existe
-import DashboardOverview from './components/DashboardOverview'; // Este é usado para a página de Configuração
+// Importe os seus componentes
+import SponsorsScreen from './components/SponsorsScreen';
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import DashboardPage from './components/DashboardPage';
+import HistoricalPage from './components/HistoricalPage';
+import DashboardOverview from './components/DashboardOverview';
 
-// Estilos globais, se App.css estiver na raiz de src/
+// Estilos
 import './App.css';
 
-
-// Componente App principal. Ele não usa mais o useLocation diretamente.
+// Componente interno para gerir o conteúdo principal e o estado dos dados
 const AppContent = () => {
-  // Estado para os dados e seleção de gráfico
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedChart, setSelectedChart] = useState(null); // 'all', 'battery', etc.
+  const [selectedChart, setSelectedChart] = useState('all');
+  const [showSponsors, setShowSponsors] = useState(true);
 
-  // Lógica para buscar os dados
+  // Usamos useCallback para memoizar a função fetchData.
+  // Isto evita que ela seja recriada em cada renderização.
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/dados');
+      if (res.data && Array.isArray(res.data)) {
+        // --- CORREÇÃO PRINCIPAL ---
+        // A lógica de comparação foi removida. Agora, simplesmente atualizamos o estado
+        // com os novos dados recebidos. O método .slice() cria um novo array, o que
+        // garante que o React detete a mudança e atualize a interface.
+        setHistory(res.data.slice(-100));
+        
+        // Se a busca foi bem-sucedida, limpamos qualquer erro anterior.
+        if (error) setError(null);
+      }
+    } catch (err) {
+      setError('Não foi possível ligar ao servidor.');
+      console.error("Erro ao buscar dados:", err);
+    } finally {
+      // O ecrã de "loading" inicial é desativado apenas uma vez.
+      setLoading(false);
+    }
+  }, [error]); // A dependência 'error' permite tentar limpar um erro existente.
+
+  // Este useEffect gere o ciclo de vida do 'setInterval' para a busca de dados.
   useEffect(() => {
-    const fetchData = async () => {
-      // Define o loading como true apenas na primeira busca ou se não houver histórico
-      if (history.length === 0) {
-        setLoading(true);
-      }
-      
-      try {
-        // Substitua pela URL correta do seu backend
-        const res = await axios.get('http://localhost:5000/dados'); 
-        if (res.data && res.data.length > 0) {
-          // Assume que res.data é um array de objetos, e o último é o mais recente
-          const newEntry = res.data[res.data.length - 1]; 
-          
-          // Adiciona nova entrada ao histórico, mantendo um tamanho máximo
-          setHistory(prev => {
-            const updatedHistory = [...prev, newEntry];
-            const maxSize = 100; // Define o tamanho máximo do histórico
-            return updatedHistory.slice(-maxSize); 
-          });
+    // Se o ecrã de patrocinadores estiver ativo, não fazemos nada.
+    if (showSponsors) {
+      return;
+    }
 
-          if(error) setError(null); // Limpa o erro se a conexão for bem sucedida
-        } else {
-          // Não define erro se for apenas uma resposta vazia, pode ser temporário
-          // Poderia adicionar uma lógica para setError('Nenhum dado novo recebido') se desejado
-        }
-      } catch (err) {
-        setError('Não foi possível conectar ao servidor. Verifique a conexão e o backend.');
-        console.error("Erro ao buscar dados:", err);
-      } finally {
-        // Define loading como false após a primeira busca bem-sucedida ou falha
-        if (loading) setLoading(false);
-      }
-    };
+    // Faz uma busca inicial assim que o ecrã de patrocinadores desaparece.
+    fetchData();
 
-    fetchData(); // Busca inicial
-    const interval = setInterval(fetchData, 5000); // Atualiza a cada 5 segundos
-    
-    // Limpa o intervalo quando o componente é desmontado
-    return () => clearInterval(interval);
-  }, [error, loading, history.length]); // Adicionamos history.length para reavaliar se o loading inicial deve ocorrer
+    // Configura o intervalo para buscar dados periodicamente.
+    const intervalId = setInterval(fetchData, 5000);
 
-  // Pega o dado mais recente do histórico
+    // A função de limpeza é crucial: ela é chamada para parar o intervalo
+    // e evitar problemas de memória ou execuções desnecessárias.
+    return () => clearInterval(intervalId);
+  }, [showSponsors, fetchData]); // O efeito depende de 'showSponsors' e da função 'fetchData'.
+
   const latestData = history.length > 0 ? history[history.length - 1] : null;
 
+  const handleSponsorsFinished = () => {
+    setShowSponsors(false);
+  };
+
+  if (showSponsors) {
+    return <SponsorsScreen onFinished={handleSponsorsFinished} />;
+  }
+
   return (
-    <div className="app-container"> {/* Certifique-se que esta classe está definida no seu App.css */}
+    <div className="app-container">
       <Header />
       <Sidebar selectedChart={selectedChart} onChartSelect={setSelectedChart} />
-
       <Routes>
-        <Route
-          path="/"
+        <Route 
+          path="/" 
           element={
-            <DashboardPage
-              selectedChart={selectedChart}
-              history={history} // Passa o histórico completo
-              latestData={latestData} // Passa o dado mais recente
-              loading={loading && history.length === 0} // Loading só se não houver histórico ainda
+            <DashboardPage 
+              history={history} 
+              latestData={latestData} 
+              selectedChart={selectedChart} 
+              loading={loading && history.length === 0} 
               error={error}
             />
-          }
+          } 
         />
         <Route 
           path="/historico" 
-          element={<HistoricalPage history={history} />} // Passa o histórico para a página de histórico
+          element={<HistoricalPage history={history} />} 
         />
-        <Route
-          path="/configuracao"
+        <Route 
+          path="/configuracao" 
           element={
             <DashboardOverview 
-              history={history} // Passa o histórico completo
-              latestData={latestData} // Passa o dado mais recente
-              // Se DashboardOverview renderizar outros gráficos, passe os dados necessários
+              history={history} 
+              latestData={latestData} 
+              loading={loading && history.length === 0} 
+              error={error}
             />
-          }
+          } 
         />
       </Routes>
     </div>

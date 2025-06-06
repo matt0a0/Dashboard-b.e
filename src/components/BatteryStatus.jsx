@@ -1,124 +1,73 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  TimeScale // Adicionado para potencial uso de eixos de tempo
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale, Filler
 } from 'chart.js';
-// Se for usar adaptadores de data (opcional, mas bom para eixos de tempo reais)
-// import 'chartjs-adapter-date-fns';
-// import { ptBR } from 'date-fns/locale';
 
+ChartJS.register( CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale, Filler);
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  TimeScale
+const BatteryPlaceholderIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17 4h-3V2h-4v2H7c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14h-2v-2h2v2zm0-4h-2V9h2v5z"/>
+  </svg>
 );
 
-const BatteryStatus = ({ percentage, historyData, latestTimestamp }) => {
-  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
-
-  // Para depuração: verifique as props recebidas
-  // console.log('BatteryStatus props:', { percentage, historyData, latestTimestamp });
+const BatteryStatus = ({ percentage, historyData, loading }) => {
+  const [chartDataState, setChartDataState] = useState({ labels: [], datasets: [] });
 
   useEffect(() => {
-    // Verifica se historyData é um array antes de usá-lo
     if (Array.isArray(historyData)) {
-      if (historyData.length > 0) {
-        setChartData({
-          // Se você tiver timestamps, use-os. Caso contrário, índices.
-          labels: historyData.map((_, index) => index + 1), // Exemplo: Rótulos como 1, 2, 3...
-          // Se tiver timestamps: historyData.map(entry => entry.timestamp)
-          datasets: [
-            {
-              label: 'Histórico de Voltagem (V)',
-              data: historyData, // historyData deve ser um array de números (voltagens)
-              borderColor: 'rgb(75, 192, 192)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              tension: 0.1,
-              fill: true,
-            },
-          ],
-        });
-      } else {
-        // historyData é um array vazio
-        setChartData({
-          labels: [],
-          datasets: [{ label: 'Histórico de Voltagem (V)', data: [], borderColor: 'rgb(75, 192, 192)' }],
-        });
-      }
+      setChartDataState({
+        labels: historyData.map((_, index) => index + 1),
+        datasets: [{
+          label: 'Histórico de Voltagem (V)',
+          data: historyData,
+          borderColor: loading || historyData.length === 0 ? 'var(--placeholder-bg)' : 'rgb(75, 192, 192)',
+          backgroundColor: loading || historyData.length === 0 ? 'transparent' : 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1,
+          fill: true,
+          pointRadius: loading || historyData.length === 0 ? 0 : 3,
+        }],
+      });
     } else {
-      // historyData é undefined ou não é um array
-      // console.warn('BatteryStatus: historyData está indefinido ou não é um array.', historyData);
-      // Define um estado padrão vazio para o gráfico
-      setChartData({
-          labels: [],
-          datasets: [{ label: 'Histórico de Voltagem (V)', data: [], borderColor: 'rgb(75, 192, 192)' }],
+      setChartDataState({
+        labels: [],
+        datasets: [{ label: 'Histórico de Voltagem (V)', data: [], borderColor: 'var(--placeholder-bg)' }],
       });
     }
-  }, [historyData]); // Re-executa o efeito quando historyData mudar
+  }, [historyData, loading]);
 
   const chartOptions = {
     maintainAspectRatio: false,
     responsive: true,
+    // Adicionando configuração de animação
+    animation: {
+      duration: 750, // Duração da animação (ex: 0.75 segundos)
+      easing: 'linear', // Easing linear para uma transição constante
+      // Para animações mais complexas ou reativas, pode-se usar onProgress ou onComplete
+    },
     scales: {
       y: {
-        beginAtZero: false, // Pode ser true se a voltagem nunca for negativa
-        title: {
-          display: true,
-          text: 'Voltagem (V)',
-          color: 'var(--text-secondary)'
-        },
-        ticks: { color: 'var(--text-secondary)' },
+        beginAtZero: false,
+        title: { display: true, text: 'Voltagem (V)', color: loading || !historyData || historyData.length === 0 ? 'var(--text-placeholder)' : 'var(--text-secondary)' },
+        ticks: { color: loading || !historyData || historyData.length === 0 ? 'var(--text-placeholder)' : 'var(--text-secondary)' },
         grid: { color: 'var(--border-color)' }
       },
       x: {
-        title: {
-          display: true,
-          text: 'Leituras Anteriores', // Ajuste se tiver timestamps
-          color: 'var(--text-secondary)'
-        },
-        ticks: { color: 'var(--text-secondary)' },
+        title: { display: true, text: 'Leituras Anteriores', color: loading || !historyData || historyData.length === 0 ? 'var(--text-placeholder)' : 'var(--text-secondary)' },
+        ticks: { color: loading || !historyData || historyData.length === 0 ? 'var(--text-placeholder)' : 'var(--text-secondary)' },
         grid: { color: 'var(--border-color)' }
-        // Se usar timestamps:
-        // type: 'time',
-        // time: {
-        //   unit: 'minute', // ou 'second', 'hour', etc.
-        //   tooltipFormat: 'PPpp', // Formato do tooltip
-        //   displayFormats: {
-        //     minute: 'HH:mm'
-        //   }
-        // },
-        // adapters: {
-        //   date: {
-        //     locale: ptBR, // Se usar date-fns e quiser localização
-        //   },
-        // },
       }
     },
     plugins: {
       legend: {
         display: true,
-        labels: {
-          color: 'var(--text-primary)'
-        }
+        labels: { color: loading || !historyData || historyData.length === 0 ? 'var(--text-placeholder)' : 'var(--text-primary)' }
       },
       title: {
         display: true,
-        text: `Status da Bateria: ${percentage !== undefined && percentage !== null ? percentage.toFixed(2) : 'N/A'} V`,
-        color: 'var(--text-primary)',
+        text: `Bateria: ${loading ? '---' : (percentage !== null && percentage !== undefined ? percentage.toFixed(2) + ' V' : 'N/A')}`,
+        color: loading || percentage === null || percentage === undefined ? 'var(--text-placeholder)' : 'var(--text-primary)',
         font: { size: 16 }
       },
       tooltip: {
@@ -127,21 +76,32 @@ const BatteryStatus = ({ percentage, historyData, latestTimestamp }) => {
         bodyColor: 'var(--text-primary)',
         borderColor: 'var(--border-color)',
         borderWidth: 1
-      }
+       }
     },
   };
 
+  if (loading) {
+    return (
+      <div className="content-placeholder" style={{width: '100%', height: '100%'}}>
+        <BatteryPlaceholderIcon />
+        <span>Carregando Bateria...</span>
+      </div>
+    );
+  }
+  
+  if (!Array.isArray(historyData)) {
+     return (
+      <div className="content-placeholder" style={{width: '100%', height: '100%'}}>
+        <BatteryPlaceholderIcon />
+        <span>Dados de bateria indisponíveis.</span>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '5px' }}>
-      <div style={{ flexGrow: 1, position: 'relative', minHeight: '200px' }}> {/* Garante altura mínima */}
-        {/* Renderiza o gráfico apenas se houver dados ou se historyData for um array vazio (para mostrar um gráfico vazio) */}
-        {(Array.isArray(historyData)) ? (
-          <Line data={chartData} options={chartOptions} />
-        ) : (
-          <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-secondary)'}}>
-            Dados do histórico de bateria indisponíveis.
-          </p>
-        )}
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flexGrow: 1, position: 'relative', minHeight: '150px' }}>
+        <Line data={chartDataState} options={chartOptions} />
       </div>
     </div>
   );

@@ -1,24 +1,30 @@
 import React from 'react';
-import ChartComponent from './ChartComponent';
+import ChartComponent from './ChartComponent'; // Importa o novo componente genérico
 
-const MotorTempChart = ({ data }) => {
-  if (!data || data.length === 0) return <div>Sem dados de temperatura do motor</div>;
-
-  const chartData = {
-    labels: data.map((_, i) => `Ponto ${i + 1}`),
-    datasets: [
-      {
-        label: 'Temperatura do Motor (°C)',
-        data: data,
-        backgroundColor: 'var(--accent-primary)',
-        borderColor: 'var(--accent-primary)',
-        borderWidth: 1,
-        fill: true,
-      },
-    ],
+const MotorTempChart = ({ currentTemp, historyData, loading }) => {
+  const chartOptions = {
+    title: `Temperatura do Motor: ${(!loading && currentTemp !== null) ? currentTemp.toFixed(1) + ' °C' : '---'}`,
+    label: 'Temp. Motor (°C)',
+    datasetOptions: {
+      borderColor: 'rgb(255, 159, 64)',
+      backgroundColor: 'rgba(255, 159, 64, 0.3)',
+      fill: true,
+      pointRadius: 2,
+    },
+    scales: {
+        y: { title: 'Temperatura (°C)' },
+        x: { title: 'Leituras Recentes' }
+    },
   };
 
-  return <ChartComponent data={chartData} area={true} />;
+  return (
+    <ChartComponent
+      type="line"
+      data={historyData} // Passa o array do histórico
+      options={chartOptions}
+      loading={loading}
+    />
+  );
 };
 
 export default MotorTempChart;
