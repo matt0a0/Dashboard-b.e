@@ -1,24 +1,12 @@
 import React from 'react';
 import ChartComponent from './ChartComponent';
 
-const SpeedChart = ({ data }) => {
-  if (!data || data.length === 0) return <div>Sem dados de velocidade</div>;
-
-  const chartData = {
-    labels: data.map((_, i) => `Ponto ${i + 1}`),
-    datasets: [
-      {
-        label: 'Velocidade (KPH)',
-        data: data,
-        backgroundColor: 'var(--accent-primary)',
-        borderColor: 'var(--accent-primary)',
-        borderWidth: 1,
-        fill: true,
-      },
-    ],
+const SpeedChart = ({ currentValue, historyData, loading, title }) => {
+  const chartOptions = {
+    title: `${title}: ${(!loading && currentValue != null) ? currentValue : '---'}`,
+    label: title,
+    datasetOptions: { borderColor: '#2ecc71', backgroundColor: 'rgba(46, 204, 113, 0.3)', fill: true },
   };
-
-  return <ChartComponent data={chartData} area={true} />;
+  return <ChartComponent data={historyData} options={chartOptions} loading={loading} />;
 };
-
 export default SpeedChart;

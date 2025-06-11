@@ -1,26 +1,12 @@
-// src/components/WavesChart.jsx
 import React from 'react';
 import ChartComponent from './ChartComponent';
 
-const WavesChart = ({ data }) => {
-  if (!data || data.length === 0) return <div>Sem dados de ondas</div>;
-
-  const chartData = {
-    labels: data.map((_, i) => `Ponto ${i + 1}`),
-    datasets: [
-      {
-        label: 'Ondas',
-        data: data.map((value, index) => ({ x: index, y: value })),
-        backgroundColor: 'var(--accent-primary)',
-        borderColor: 'var(--accent-primary)',
-        borderWidth: 1,
-        pointRadius: 5,
-        showLine: false,
-      },
-    ],
+const WavesChart = ({ currentValue, historyData, loading }) => {
+  const chartOptions = {
+    title: `Corrente: ${(!loading && currentValue != null) ? currentValue.toFixed(2) + ' A' : '---'}`,
+    label: 'Corrente (A)',
+    datasetOptions: { borderColor: '#9b59b6', backgroundColor: 'rgba(155, 89, 182, 0.3)', fill: true },
   };
-
-  return <ChartComponent data={chartData} scatter={true} />;
+  return <ChartComponent data={historyData} options={chartOptions} loading={loading} />;
 };
-
 export default WavesChart;

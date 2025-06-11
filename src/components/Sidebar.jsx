@@ -1,54 +1,37 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import UserMenu from './UserMenu'; // Certifique-se que este componente existe
+import UserMenu from './UserMenu';
 
-const Sidebar = ({ selectedChart, onChartSelect }) => {
+const Sidebar = ({ selectedChart, onSelectChart }) => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
-
-  // Defina os botões de gráfico aqui para facilitar a manutenção
   const chartButtons = [
-    { id: 'all', label: 'Todos os Gráficos' },
-    { id: 'battery', label: 'Status da Bateria' },
-    { id: 'speed', label: 'Velocidade do Barco' },
-    { id: 'motorSpeed', label: 'Velocidade do Motor' },
-    { id: 'motorTemp', label: 'Temperatura do Motor' },
-    { id: 'controlTemp', label: 'Temperatura do Controle' },
-    { id: 'windSpeed', label: 'Velocidade do Vento' }, // Supondo que você tenha este
-    { id: 'waves', label: 'Corrente/Ondas' }, // Supondo que você tenha este
-    { id: 'navigation', label: 'Navegação (Bússola)' },
+    { id: 'all', label: 'Todos os Gráficos' }, { id: 'battery', label: 'Status da Bateria' },
+    { id: 'speed', label: 'Velocidade (KPH)' }, { id: 'motorSpeed', label: 'Motor (RPM)' },
+    { id: 'motorTemp', label: 'Temp. do Motor' }, { id: 'controlTemp', label: 'Temp. do Controle' },
+    { id: 'waves', label: 'Corrente' }, { id: 'autonomia', label: 'Autonomia' }, { id: 'capacidade', label: 'Capacidade Restante' },
+    { id: 'navigation', label: 'Navegação' },
   ];
 
   return (
-    <div className="menu-container"> {/* Use a classe do seu App.css */}
-      {!isHomePage && (
-        <Link to="/" className="menu menu-button-base" style={{ marginBottom: '10px' }}>
-          Voltar ao Início
-        </Link>
-      )}
-
+    <aside className="menu-container">
       <UserMenu />
-
+      <hr style={{borderColor: 'var(--border-color)', margin: '15px 0'}}/>
+      <Link to="/" className={`menu-button-base ${isHomePage ? 'active' : ''}`}>Dashboard</Link>
+      <Link to="/historico" className={`menu-button-base ${location.pathname === '/historico' ? 'active' : ''}`}>Histórico</Link>
+      <Link to="/configuracao" className={`menu-button-base ${location.pathname === '/configuracao' ? 'active' : ''}`}>Configuração</Link>
       {isHomePage && (
         <>
+          <hr style={{borderColor: 'var(--border-color)', margin: '15px 0'}}/>
+          <h4 style={{color: 'var(--text-secondary)', paddingLeft: '15px', marginBottom: '5px'}}>Visualizações</h4>
           {chartButtons.map(button => (
-            <button 
-              key={button.id}
-              // Use a classe base e adicione 'active' condicionalmente
-              className={`menu menu-button-base ${selectedChart === button.id ? 'active' : ''}`} 
-              onClick={() => onChartSelect(button.id)}
-            >
+            <button key={button.id} className={`menu-button-base ${selectedChart === button.id ? 'active' : ''}`} onClick={() => onSelectChart(button.id)}>
               {button.label}
             </button>
           ))}
         </>
       )}
-       {/* Links para outras páginas podem vir aqui se não estiverem no Header */}
-       <hr style={{borderColor: 'var(--border-color)', margin: '10px 0'}}/>
-       <Link to="/historico" className="menu menu-button-base">Histórico</Link>
-       <Link to="/configuracao" className="menu menu-button-base">Configuração</Link>
-    </div>
+    </aside>
   );
 };
-
 export default Sidebar;

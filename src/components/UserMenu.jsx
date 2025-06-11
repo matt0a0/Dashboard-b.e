@@ -1,32 +1,19 @@
-import React, { useState } from 'react';
-import './UserMenu.css';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Este é um componente simples de placeholder para o UserMenu.
+// Ele NÃO importa um ficheiro CSS próprio, para evitar erros de caminho.
+// Os estilos estão no App.css global.
 const UserMenu = () => {
-    const [expanded, setExpanded] = useState(false);
-
-    const toggleMenu = () => {
-        setExpanded(prev => !prev);
-    };
-
-    return (
-        <div className="user-menu">
-            <button className="user-menu-toggle" onClick={toggleMenu}>
-                Menu Usuário
-            </button>
-            <div className={`user-menu-options ${expanded ? 'expanded' : ''}`}>
-                {/* Link para Histórico */}
-                <Link to="/historico" className="user-menu-option">
-                    Histórico
-                </Link>
-
-                {/* Link para Configuração */}
-                <Link to="/configuracao" className="user-menu-option">
-                    Configuração
-                </Link>
-            </div>
-        </div>
-    );
+  return (
+    <div className="user-menu">
+      <div className="avatar"></div>
+      <p className="username">Marlon</p>
+      <p className="status">Online</p>
+      {/* Pode adicionar um link para uma página de perfil, se desejar */}
+      {/* <Link to="/perfil">Ver Perfil</Link> */}
+    </div>
+  );
 };
 
 export default UserMenu;

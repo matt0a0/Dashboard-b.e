@@ -1,32 +1,23 @@
-/* src/App.css */
-
-/* Definição da Paleta de Cores (mantida do seu original) */
 :root {
-  --bg-dark: #1a2a3a;
-  --bg-panel: #223547;
-  --text-primary: #e1e1e1;
-  --text-secondary: #b0b0b0;
-  --accent-primary: #27ae60;
+  --bg-dark: #1C1C1E;
+  --bg-panel: #2C2C2E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #8E8E93;
+  --accent-primary: #00A79D;
   --accent-secondary: #3498db;
-  --border-color: #304a60;
-  --hover-bg-light: rgba(255, 255, 255, 0.05);
-  --hover-bg-dark: rgba(0, 0, 0, 0.1);
-  --placeholder-bg: #2a3f52; /* Nova cor para fundo de placeholder */
-  --text-placeholder: #6a7f92;  /* Nova cor para texto de placeholder */
+  --border-color: #3A3A3C;
+  --placeholder-bg: #2a3f52;
+  --text-placeholder: #6a7f92;
 }
 
-/* Estilos Globais (mantidos) */
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-primary);
   overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Layout Principal com CSS Grid (mantido) */
 .app-container {
   display: grid;
   grid-template-columns: 250px 1fr;
@@ -35,227 +26,136 @@ body {
     "header header"
     "menu content";
   height: 100vh;
-  width: 100%;
 }
 
-/* Header (mantido) */
-.header-placeholder { /* Renomeie se não for mais um placeholder */
+.header-container {
   grid-area: header;
   background-color: var(--bg-panel);
-  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  font-size: 1.2em;
-  border-bottom: 1px solid var(--border-color);
+  padding: 0 24px;
 }
 
-/* Container do Menu Lateral (mantido) */
 .menu-container {
   grid-area: menu;
   background-color: var(--bg-panel);
-  color: var(--text-primary);
   padding: 20px;
-  box-sizing: border-box;
-  height: 100%;
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   gap: 10px;
   overflow-y: auto;
 }
 
-/* Estilo Base para Botões do Menu (mantido) */
-.menu-button-base { /* Renomeado de 'menu' para evitar conflito com grid-area 'menu' */
+.menu-button-base {
   background-color: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   padding: 10px 15px;
   cursor: pointer;
   font-size: 15px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  width: 100%;
+  transition: all 0.2s ease;
+  width: 80%;
   text-align: left;
-  border-radius: 4px;
-  box-sizing: border-box;
+  border-radius: 8px;
 }
 
 .menu-button-base:hover {
-  background-color: var(--hover-bg-light);
-  border-color: var(--accent-secondary);
-}
-.menu-button-base.active {
-  background-color: var(--accent-secondary);
-  border-color: var(--accent-secondary);
-  color: white;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
-/* Área de Conteúdo Principal */
+.menu-button-base.active {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+  font-weight: 500;
+}
+
 .content {
   grid-area: content;
-  height: 100%;
-  background-color: var(--bg-dark);
   display: flex;
-  flex-direction: column; /* Organiza mapa e gráfico verticalmente por padrão */
-  box-sizing: border-box;
-  padding: 20px;
+  flex-direction: column;
+  padding: 24px;
   overflow-y: auto;
-  gap: 20px;
+  gap: 24px;
 }
 
-/* Container do Mapa */
-.map-container {
-  /* A altura será controlada pelo flex-grow ou aspect-ratio dependendo do contexto */
+/* --- Layout para a VISTA DE GRÁFICO ÚNICO --- */
+.map-view-container {
+  flex: 1 1 50%;
+  min-height: 0;
   border: 1px solid var(--border-color);
   background-color: var(--bg-panel);
-  border-radius: 8px; /* Aumentado o raio */
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex; /* Para centralizar conteúdo placeholder */
-  align-items: center;
-  justify-content: center;
-  position: relative; /* Para aspect-ratio se necessário */
-}
-
-/* Container dos Gráficos (singular) */
-.grafico-container {
-  /* A altura será controlada pelo flex-grow */
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-panel);
-  border-radius: 8px; /* Aumentado o raio */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
-  box-sizing: border-box;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  min-height: 250px; /* Altura mínima para um gráfico individual */
+  flex-direction: column;
+}
+.chart-view-container {
+  flex: 1 1 50%;
+  min-height: 0;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-panel);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
-/* Estilo para Placeholder de Gráfico/Conteúdo */
 .content-placeholder {
   width: 100%;
   height: 100%;
-  min-height: 150px; /* Altura mínima para placeholders */
+  flex-grow: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--placeholder-bg);
-  border-radius: 6px; /* Um pouco menor que o container */
-  color: var(--text-placeholder);
+  color: var(--text-secondary);
   font-size: 1rem;
-  text-align: center;
-  padding: 10px;
 }
 
-.content-placeholder svg { /* Para ícones de placeholder */
-  width: 48px;
-  height: 48px;
-  margin-bottom: 10px;
-  opacity: 0.5;
-}
-
-/* Texto de Placeholder */
-.text-placeholder-value {
-  color: var(--text-placeholder);
-  font-style: italic;
-}
-
-/* Layout para AllCharts (Grelha de Gráficos) */
+/* --- Layout para a VISTA "TODOS OS GRÁFICOS" --- */
 .all-charts-container {
   display: grid;
-  /* Cria colunas responsivas:
-     - 1 coluna em telas pequenas
-     - 2 colunas em telas médias (sm)
-     - 3 colunas em telas grandes (md)
-     - 4 colunas em telas extra grandes (lg)
-     Tenta fazer com que sejam o mais quadradas possível (minmax com aspect ratio implícito)
-  */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 15px;
+  gap: 20px;
   width: 100%;
-  height: 100%; /* Para preencher o espaço do grafico-container */
-  overflow-y: auto; /* Scroll se muitos gráficos */
-  padding: 5px; /* Pequeno padding interno */
+  height: 100%;
 }
 
-.all-charts-container .chart-item {
+/* Esta regra aplica-se a CADA ITEM na grelha, incluindo o mapa */
+.all-charts-container .grid-item {
   background-color: var(--bg-panel);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  /* Tenta manter uma proporção quadrada, mas permite que o conteúdo defina a altura */
-  aspect-ratio: 1 / 1; /* Força o item a ser quadrado */
-  min-height: 200px; /* Altura mínima para cada gráfico na grelha */
-  overflow: hidden; /* Para evitar que o gráfico transborde */
-}
-
-.all-charts-container .chart-item h4 { /* Título do mini-gráfico */
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  text-align: center;
-  white-space: nowrap;
+  aspect-ratio: 1 / 1; /* Força a proporção quadrada */
+  min-height: 250px;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Ajustes para o .content quando AllCharts está ativo */
-.content.all-charts-active {
-  /* Por padrão, o .content já é flex column.
-     O .map-container e .grafico-container (que conterá AllCharts)
-     irão partilhar o espaço verticalmente.
-  */
+.user-menu {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-align: center;
 }
-
-.content.all-charts-active .map-container {
-  flex-grow: 1; /* Permite que o mapa e os gráficos partilhem o espaço */
-  flex-basis: 40%; /* Mapa ocupa inicialmente 40% da altura */
-  aspect-ratio: 16 / 9; /* Tenta manter uma proporção para o mapa, pode ser 1/1 para quadrado */
-  max-height: 50vh; /* Limita a altura máxima do mapa */
+.user-menu .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--accent-secondary);
+  margin: 0 auto 10px;
 }
-
-.content.all-charts-active .grafico-container {
-  flex-grow: 1;
-  flex-basis: 60%; /* Gráficos ocupam 60% */
-  padding: 0; /* Remove padding para que o all-charts-container use o seu */
+.user-menu .username {
+  font-weight: 500;
+  color: var(--text-primary);
 }
-
-
-/* Estilos para tabelas (mantido) */
-table { /* ... */ }
-th, td { /* ... */ }
-th { /* ... */ }
-
-/* Responsividade Básica (mantida e ajustável) */
-@media (max-width: 768px) {
-  .app-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: 60px auto 1fr;
-    grid-template-areas:
-      "header"
-      "menu"
-      "content";
-  }
-  .menu-container { height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
-  .content { padding: 15px; gap: 15px; }
-  
-  .content.all-charts-active .map-container,
-  .content.all-charts-active .grafico-container {
-    flex-basis: auto; /* Remove a base para empilhamento natural */
-    height: 50vh; /* Exemplo de altura fixa em mobile para cada secção */
-    max-height: none;
-    aspect-ratio: unset;
-  }
-  .all-charts-container {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Colunas menores em mobile */
-  }
-  .all-charts-container .chart-item {
-    min-height: 180px;
-  }
+.user-menu .status {
+  font-size: 0.8rem;
+  color: var(--accent-primary);
 }

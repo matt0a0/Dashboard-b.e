@@ -1,85 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler
-} from 'chart.js';
+import React, { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
-
-const ChartComponent = ({ data, labels, type = 'line', options, loading }) => {
+const ChartComponent = ({ data, options, loading }) => {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
-
   useEffect(() => {
-    const defaultDatasetOptions = { tension: 0.2, borderWidth: 2 };
-    const currentDatasetOptions = { ...defaultDatasetOptions, ...(options?.datasetOptions || {}) };
-    
-    let processedLabels = labels;
-    if (!processedLabels && Array.isArray(data) && data.length > 0) {
-      processedLabels = data.map((_, index) => index + 1);
-    } else if (!processedLabels) {
-      processedLabels = [];
-    }
-
-    if (Array.isArray(data)) {
-      setChartData({
-        labels: processedLabels,
-        datasets: [{
-          label: options?.label || 'Dataset',
-          data: data,
-          ...currentDatasetOptions,
-        }],
-      });
-    }
-  }, [data, labels, options, type]);
-
+    setChartData({
+      labels: data?.map((_, index) => index + 1) || [],
+      datasets: [{ label: options?.label || 'Dataset', data: data || [], ...options?.datasetOptions, }],
+    });
+  }, [data, options]);
   const chartJS_options = {
-    maintainAspectRatio: false,
-    responsive: true,
-    animation: {
-      duration: 800, // Animação suave para transição de dados
-      easing: 'easeInOutQuad',
-    },
+    maintainAspectRatio: false, responsive: true, animation: { duration: 800, easing: 'easeInOutQuad' },
     scales: {
-      y: {
-        title: { display: !!options?.scales?.y?.title, text: options?.scales?.y?.title || '', color: 'var(--text-secondary)' },
-        ticks: { color: 'var(--text-primary)' }, // Cor do texto do eixo Y
-        grid: { color: 'var(--border-color)' }
-      },
-      x: {
-        title: { display: !!options?.scales?.x?.title, text: options?.scales?.x?.title || '', color: 'var(--text-secondary)' },
-        ticks: { color: 'var(--text-primary)' }, // Cor do texto do eixo X
-        grid: { color: 'var(--border-color)' }
-      }
+      y: { ticks: { color: '#FFFFFF' }, grid: { color: '#3A3A3C' }, min: options?.scales?.y?.min, max: options?.scales?.y?.max, },
+      x: { ticks: { color: '#FFFFFF' }, grid: { color: '#3A3A3C' } }
     },
     plugins: {
-      legend: { labels: { color: 'var(--text-primary)' } }, // Cor do texto da legenda
-      title: { display: !!options?.title, text: options?.title || '', color: 'var(--text-primary)', font: { size: 16 } },
-      tooltip: { 
-          backgroundColor: 'var(--bg-dark)', 
-          titleColor: 'var(--text-primary)', 
-          bodyColor: 'var(--text-primary)', 
-          borderColor: 'var(--border-color)', 
-          borderWidth: 1 
-      }
+      legend: { labels: { color: '#FFFFFF' } },
+      title: { display: !!options?.title, text: options?.title, color: '#FFFFFF', font: { size: 16 } },
+      tooltip: { backgroundColor: '#2C2C2E', titleColor: '#FFFFFF', bodyColor: '#FFFFFF', borderColor: '#3A3A3C', borderWidth: 1 }
     }
   };
-
-  if (loading) return <div className="content-placeholder"><span>A carregar gráfico...</span></div>;
-
-  const renderChart = () => {
-    if (!Array.isArray(data) || data.length === 0) return <div className="content-placeholder"><span>Sem dados para exibir.</span></div>;
-    if (type === 'line') return <Line data={chartData} options={chartJS_options} />;
-    if (type === 'bar') return <Bar data={chartData} options={chartJS_options} />;
-    return null;
-  };
-
-  return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flexGrow: 1, position: 'relative', minHeight: '150px' }}>
-        {renderChart()}
-      </div>
-    </div>
-  );
+  if (loading) return <div className="content-placeholder">A carregar...</div>;
+  if (!data || data.length === 0) return <div className="content-placeholder">Sem dados.</div>;
+  return <Line data={chartData} options={chartJS_options} />;
 };
-
 export default ChartComponent;
