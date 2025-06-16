@@ -1,84 +1,132 @@
 import React, { useState } from 'react';
-import './ConfigPage.css'; // Importe um CSS para o estilo profissional
+
+// Um componente reutilizável para o toggle switch, para um visual moderno
+const ToggleSwitch = ({ id, checked, onChange }) => {
+  return (
+    <label htmlFor={id} className="toggle-switch">
+      <input id={id} type="checkbox" checked={checked} onChange={onChange} />
+      <span className="slider"></span>
+    </label>
+  );
+};
 
 const ConfigPage = () => {
-  const [speed, setSpeed] = useState(50); // Controlando a velocidade
-  const [temperature, setTemperature] = useState(22); // Temperatura em °C
-  const [isNavigationEnabled, setIsNavigationEnabled] = useState(true); // Se a navegação está ativada
-  const [theme, setTheme] = useState('light'); // Tema (claro ou escuro)
+  // Estados para gerir as configurações (valores de exemplo)
+  // No futuro, estes valores poderiam vir de um contexto global ou de uma API
+  const [settings, setSettings] = useState({
+    language: 'pt-br',
+    lowBatteryAlert: true,
+    lowBatteryThreshold: 20,
+    highMotorTempAlert: true,
+    highMotorTempThreshold: 90,
+    refreshRate: 5,
+  });
 
-  const handleSpeedChange = (event) => {
-    setSpeed(event.target.value);
+  const handleToggleChange = (key) => {
+    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleTemperatureChange = (event) => {
-    setTemperature(event.target.value);
+  const handleValueChange = (key, value) => {
+    // Garante que o valor é tratado como número onde for apropriado
+    const numericValue = !isNaN(parseFloat(value)) ? parseFloat(value) : value;
+    setSettings(prev => ({ ...prev, [key]: numericValue }));
   };
 
-  const handleNavigationToggle = () => {
-    setIsNavigationEnabled(!isNavigationEnabled);
-  };
-
-  const handleThemeChange = (event) => {
-    setTheme(event.target.value);
+  // Função para salvar as configurações (atualmente apenas exibe um alerta)
+  const saveSettings = () => {
+    console.log("Configurações salvas:", settings);
+    // Em uma aplicação real, aqui você enviaria as configurações para o backend ou as salvaria no localStorage
+    alert('Configurações salvas (funcionalidade de exemplo)!');
   };
 
   return (
-    <div className={`config-page ${theme}`}>
-      <h2>Configurações do Sistema</h2>
+    <div className="config-page-container">
+      <h1 style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-primary)' }}>Configurações</h1>
 
-      <div className="config-section">
-        <label htmlFor="speed-slider">Velocidade (Km/h):</label>
-        <input
-          id="speed-slider"
-          type="range"
-          min="0"
-          max="100"
-          value={speed}
-          onChange={handleSpeedChange}
-          className="config-slider"
-        />
-        <span>{speed} Km/h</span>
-      </div>
+      {/* Seção de Configurações Gerais */}
+      <section className="config-section">
+        <h2 className="config-section-title">Geral</h2>
+        <div className="config-option">
+          <div className="config-option-label">
+            <strong>Idioma</strong>
+            <span>Mude o idioma da interface.</span>
+          </div>
+          <div className="config-option-control">
+            <select
+              value={settings.language}
+              onChange={(e) => handleValueChange('language', e.target.value)}
+            >
+              <option value="pt-br">Português (Brasil)</option>
+              <option value="en-us">English (US)</option>
+            </select>
+          </div>
+        </div>
+      </section>
 
-      <div className="config-section">
-        <label htmlFor="temperature-input">Temperatura:</label>
-        <input
-          id="temperature-input"
-          type="number"
-          value={temperature}
-          onChange={handleTemperatureChange}
-          min="-10"
-          max="50"
-          className="config-input"
-        />
-        <span>°C</span>
-      </div>
+      {/* Seção de Alertas */}
+      <section className="config-section">
+        <h2 className="config-section-title">Alertas e Notificações</h2>
+        <div className="config-option">
+          <div className="config-option-label">
+            <strong>Alerta de Bateria Baixa</strong>
+            <span>Receba uma notificação quando a bateria estiver abaixo do limiar.</span>
+          </div>
+          <div className="config-option-control" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <input
+              type="number"
+              value={settings.lowBatteryThreshold}
+              onChange={(e) => handleValueChange('lowBatteryThreshold', e.target.value)}
+              style={{ width: '60px' }}
+              disabled={!settings.lowBatteryAlert}
+            />
+            <span>%</span>
+            <ToggleSwitch id="low-battery-toggle" checked={settings.lowBatteryAlert} onChange={() => handleToggleChange('lowBatteryAlert')} />
+          </div>
+        </div>
+        <div className="config-option">
+          <div className="config-option-label">
+            <strong>Alerta de Temperatura Alta do Motor</strong>
+            <span>Receba uma notificação quando a temperatura exceder o limiar.</span>
+          </div>
+          <div className="config-option-control" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <input
+              type="number"
+              value={settings.highMotorTempThreshold}
+              onChange={(e) => handleValueChange('highMotorTempThreshold', e.target.value)}
+              style={{ width: '60px' }}
+              disabled={!settings.highMotorTempAlert}
+            />
+            <span>°C</span>
+            <ToggleSwitch id="high-temp-toggle" checked={settings.highMotorTempAlert} onChange={() => handleToggleChange('highMotorTempAlert')} />
+          </div>
+        </div>
+      </section>
 
-      <div className="config-section">
-        <label htmlFor="navigation-toggle">Ativar Navegação:</label>
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={isNavigationEnabled}
-            onChange={handleNavigationToggle}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
+       {/* Seção de Dados */}
+       <section className="config-section">
+        <h2 className="config-section-title">Dados e Atualização</h2>
+        <div className="config-option">
+          <div className="config-option-label">
+            <strong>Frequência de Atualização</strong>
+            <span>Intervalo em que os dados do dashboard são atualizados.</span>
+          </div>
+          <div className="config-option-control">
+            <select
+              value={settings.refreshRate}
+              onChange={(e) => handleValueChange('refreshRate', e.target.value)}
+            >
+              <option value={2}>2 segundos</option>
+              <option value={5}>5 segundos (Padrão)</option>
+              <option value={10}>10 segundos</option>
+              <option value={30}>30 segundos</option>
+            </select>
+          </div>
+        </div>
+      </section>
 
-      <div className="config-section">
-        <label htmlFor="theme-select">Tema:</label>
-        <select
-          id="theme-select"
-          value={theme}
-          onChange={handleThemeChange}
-          className="config-select"
-        >
-          <option value="light">Claro</option>
-          <option value="dark">Escuro</option>
-        </select>
-      </div>
+      <button className="menu-button-base active config-save-btn" onClick={saveSettings}>
+        Salvar Alterações
+      </button>
     </div>
   );
 };

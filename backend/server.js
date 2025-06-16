@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 const uri = process.env.MONGO_URI;
 const collectionName = process.env.COLLECTION_NAME;
 
